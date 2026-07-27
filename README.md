@@ -32,4 +32,22 @@ Every piece of text exists twice — a Turkish and an English span:
 ```
 
 Edit both when changing content. For visual editing, open `editor.html` in
-Chrome/Edge, pick a page, click text, type, and save.
+Chrome/Edge, click "Site Klasörünü Aç", and pick this folder: you get a page
+tree, click-to-type text editing, an arrange mode (move/duplicate/delete
+elements, change links and images), a block palette (headings, paragraphs,
+buttons, images, lists, quotes, cards, sections), page creation (main pages
+and subpages with automatic menu/parent linking) and page deletion with
+link cleanup.
+
+Site conventions: subpages live one level deep in a folder named after the
+parent page (like `news/`); asset paths from subpages start with `../`.
+
+## Workflow (any computer)
+
+1. `git pull` before starting work.
+2. Edit files (by hand, with `editor.html`, or with Claude Code).
+3. `git add -A && git commit -m "describe the change" && git push`
+4. GitHub Pages redeploys automatically ~1 minute after the push.
+
+Live site: https://alperenkizilkulak.github.io/kucukkolbasi-research-group/
+Repo: https://github.com/alperenkizilkulak/kucukkolbasi-research-group
