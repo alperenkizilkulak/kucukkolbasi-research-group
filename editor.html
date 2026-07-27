@@ -20,7 +20,7 @@
       padding: 8px 14px;
     }
     .bar strong { color: #fff; font-size: 0.92rem; margin-right: 2px; }
-    .bar button, .modal button {
+    .bar button, .modal button, .modal .btn-row button {
       border: none; border-radius: 8px; cursor: pointer;
       font: 600 0.8rem "Segoe UI", sans-serif;
       padding: 7px 12px;
@@ -34,6 +34,10 @@
     .mode-group { display: flex; border-radius: 8px; overflow: hidden; }
     .mode-group button { border-radius: 0; background: #1e3055; }
     .mode-group button.on { background: #7c9cc4; color: #101a30; }
+    .insert-group { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+    .insert-group .lbl { font-size: 0.78rem; font-weight: 700; color: #7c9cc4; }
+    .insert-group button { background: #24395f; padding: 6px 9px; font-size: 0.75rem; }
+    .insert-group button:hover:not(:disabled) { background: #3d5a94; }
     .sel-tools { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
     .sel-tools[hidden] { display: none; }
     #selLabel {
@@ -55,8 +59,8 @@
     /* ---------- hint ---------- */
     #hint {
       background: #dde4f2; color: #1e3055;
-      font-size: 0.8rem; line-height: 1.45;
-      padding: 8px 14px;
+      font-size: 0.78rem; line-height: 1.45;
+      padding: 7px 14px;
       border-bottom: 1px solid #c3cee6;
     }
     #hint b { color: #16233f; }
@@ -65,7 +69,7 @@
     /* ---------- layout ---------- */
     #main { flex: 1; display: flex; min-height: 0; }
     #sidebar {
-      width: 210px; flex-shrink: 0;
+      width: 220px; flex-shrink: 0;
       background: #fff; border-right: 1px solid #e3e8f2;
       display: flex; flex-direction: column;
       overflow-y: auto;
@@ -82,23 +86,25 @@
     }
     .page-item:hover { background: #f6f8fc; }
     .page-item.active { background: #dde4f2; font-weight: 700; color: #16233f; }
-    .page-item .sub { color: #7c9cc4; font-size: 0.72rem; display: block; }
+    .page-item.sub { padding-left: 30px; font-size: 0.8rem; color: #55617a; }
+    .page-item.sub.active { color: #16233f; }
     #sideActions { margin-top: auto; padding: 12px; display: flex; flex-direction: column; gap: 8px; }
-    #sideActions button { width: 100%; }
-    #newPageBtn { background: #2e4778; color: #fff; border: none; border-radius: 8px; padding: 9px; font-weight: 600; cursor: pointer; }
-    #delPageBtn { background: #fff; color: #8a2f2f; border: 1.5px solid #e3b3b3; border-radius: 8px; padding: 8px; font-weight: 600; cursor: pointer; }
-    #delPageBtn:disabled { opacity: 0.35; cursor: not-allowed; }
+    #sideActions button { width: 100%; border: none; border-radius: 8px; padding: 9px; font-weight: 600; cursor: pointer; font-size: 0.82rem; }
+    #newPageBtn { background: #2e4778; color: #fff; }
+    #newPostBtn { background: #dde4f2; color: #16233f; }
+    #delPageBtn { background: #fff; color: #8a2f2f; border: 1.5px solid #e3b3b3; }
+    #sideActions button:disabled { opacity: 0.35; cursor: not-allowed; }
     #frame { flex: 1; border: none; background: #fff; min-width: 0; }
 
-    /* ---------- image picker modal ---------- */
-    #modalWrap {
+    /* ---------- modals ---------- */
+    #modalWrap, #pageModalWrap {
       position: fixed; inset: 0; z-index: 50;
       background: rgba(16, 26, 48, 0.55);
       display: grid; place-items: center;
     }
     .modal {
       background: #fff; border-radius: 14px; padding: 20px;
-      width: min(640px, 92vw); max-height: 80vh; overflow-y: auto;
+      width: min(640px, 92vw); max-height: 84vh; overflow-y: auto;
     }
     .modal h3 { font-size: 1rem; color: #16233f; margin-bottom: 14px; }
     .img-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px; }
@@ -106,7 +112,17 @@
     .img-choice:hover { border-color: #2e4778; }
     .img-choice img { width: 100%; height: 80px; object-fit: cover; border-radius: 6px; display: block; }
     .img-choice span { display: block; font-size: 0.68rem; color: #55617a; margin-top: 4px; word-break: break-all; }
-    .modal .close-row { margin-top: 14px; text-align: right; }
+    .form-row { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; }
+    .form-row label { font-size: 0.76rem; font-weight: 700; color: #55617a; }
+    .form-row input, .form-row select {
+      border: 1.5px solid #e3e8f2; border-radius: 8px; padding: 8px 10px;
+      font: 500 0.88rem "Segoe UI", sans-serif; color: #1c2536;
+    }
+    .form-row input:focus, .form-row select:focus { outline: 2px solid #7c9cc4; }
+    .check-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; font-size: 0.84rem; }
+    .check-row input { width: 16px; height: 16px; }
+    .btn-row { margin-top: 14px; display: flex; justify-content: flex-end; gap: 8px; }
+    .btn-row .secondary { background: #e3e8f2; color: #1c2536; }
     [hidden] { display: none !important; }
   </style>
 </head>
@@ -116,10 +132,21 @@
     <strong>✏️ Editör</strong>
     <button id="openBtn">📂 Site Klasörünü Aç / Open Folder</button>
     <button id="saveBtn" disabled>💾 Kaydet / Save</button>
-    <button id="undoBtn" disabled>↩ Geri Al / Undo</button>
+    <button id="undoBtn" disabled>↩ Geri Al</button>
     <span class="mode-group">
-      <button id="modeText" class="on">✏️ Metin / Text</button>
-      <button id="modeArrange">🧩 Düzen / Arrange</button>
+      <button id="modeText" class="on">✏️ Metin</button>
+      <button id="modeArrange">🧩 Düzen</button>
+    </span>
+    <span class="insert-group" id="insertGroup" hidden>
+      <span class="lbl">➕ Ekle:</span>
+      <button data-block="heading">Başlık</button>
+      <button data-block="text">Metin</button>
+      <button data-block="button">Buton</button>
+      <button data-block="image">Görsel</button>
+      <button data-block="list">Liste</button>
+      <button data-block="quote">Alıntı</button>
+      <button data-block="card">Kart</button>
+      <button data-block="section">Bölüm</button>
     </span>
     <span class="sel-tools" id="selTools" hidden>
       <span id="selLabel"></span>
@@ -143,10 +170,10 @@
   </div>
 
   <div id="hint">
-    <b>Metin modu:</b> metne tıkla ve yaz (sarı = TR, mavi = EN — ikisini de güncelle).
-    <b>Düzen modu:</b> bir öğeye tıkla → taşı, çoğalt, sil, bağlantı/görsel değiştir.
-    Her değişiklikten sonra <b>Kaydet</b>'e bas. Yanlışlıkla silersen: Geri Al; kaydedilmiş eski sürümler git geçmişinden kurtarılabilir. /
-    <b>Text mode:</b> click text and type. <b>Arrange mode:</b> click an element → move, duplicate, delete, change link/image. Press <b>Save</b> after changes.
+    <b>Metin:</b> metne tıkla ve yaz (sarı = TR, mavi = EN — ikisini de güncelle).
+    <b>Düzen:</b> öğe seç → taşı, çoğalt, sil, bağlantı/görsel değiştir.
+    <b>➕ Ekle:</b> seçili öğenin altına (seçim yoksa sayfa sonuna) yeni blok ekler.
+    Ana sayfalar üstte, alt sayfalar altlarında girintili listelenir. Değişiklikten sonra <b>Kaydet</b>; yayına almak için Claude'a "publish" de.
   </div>
 
   <div id="main">
@@ -154,8 +181,9 @@
       <h4>Sayfalar / Pages</h4>
       <div id="pageList"><button class="page-item" disabled>Önce klasörü aç / Open the folder first</button></div>
       <div id="sideActions">
-        <button id="newPageBtn" disabled>➕ Yeni Haber Sayfası / New Post</button>
-        <button id="delPageBtn" disabled>🗑 Bu Haberi Sil / Delete Post</button>
+        <button id="newPageBtn" disabled>➕ Yeni Sayfa / New Page</button>
+        <button id="newPostBtn" disabled>📰 Yeni Haber / New Post</button>
+        <button id="delPageBtn" disabled>🗑 Sayfayı Sil / Delete Page</button>
       </div>
     </aside>
     <iframe id="frame" title="Düzenlenen sayfa"></iframe>
@@ -165,7 +193,48 @@
     <div class="modal">
       <h3>Görsel seç / Choose an image</h3>
       <div class="img-grid" id="imgGrid"></div>
-      <div class="close-row"><button id="modalClose">Vazgeç / Cancel</button></div>
+      <div class="btn-row"><button id="modalClose" class="secondary">Vazgeç / Cancel</button></div>
+    </div>
+  </div>
+
+  <div id="pageModalWrap" hidden>
+    <div class="modal">
+      <h3>➕ Yeni Sayfa / New Page</h3>
+      <div class="form-row">
+        <label>Türkçe başlık / Turkish title</label>
+        <input id="npTr" placeholder="ör. Yayınlarımız">
+      </div>
+      <div class="form-row">
+        <label>İngilizce başlık / English title</label>
+        <input id="npEn" placeholder="e.g. Publications">
+      </div>
+      <div class="form-row">
+        <label>Dosya adı / File name (boş bırakılırsa otomatik / auto if empty)</label>
+        <input id="npSlug" placeholder="yayinlarimiz">
+      </div>
+      <div class="form-row">
+        <label>Sayfa türü / Page type</label>
+        <select id="npType">
+          <option value="main">Ana sayfa (kökte) / Main page (root)</option>
+          <option value="sub">Alt sayfa / Subpage</option>
+        </select>
+      </div>
+      <div class="form-row" id="npParentRow" hidden>
+        <label>Üst sayfa / Parent page</label>
+        <select id="npParent"></select>
+      </div>
+      <div class="check-row" id="npNavRow">
+        <input type="checkbox" id="npNav" checked>
+        <label for="npNav">Üst menüye ekle (tüm sayfalarda) / Add to top menu (on all pages)</label>
+      </div>
+      <div class="check-row" id="npParentLinkRow" hidden>
+        <input type="checkbox" id="npParentLink" checked>
+        <label for="npParentLink">Üst sayfaya bağlantı kartı ekle / Add a link card on the parent page</label>
+      </div>
+      <div class="btn-row">
+        <button id="npCancel" class="secondary">Vazgeç / Cancel</button>
+        <button id="npCreate">Oluştur / Create</button>
+      </div>
     </div>
   </div>
 
@@ -175,14 +244,14 @@
       var $ = function (id) { return document.getElementById(id); };
       var frame = $("frame");
 
-      var dirHandle = null;        // FileSystemDirectoryHandle of the site folder
-      var pages = [];              // [{path, name, inNews, handle}]
+      var dirHandle = null;
+      var pages = [];              // [{path, name, dir, depth, handle}]
       var images = [];             // [{path, handle}]
-      var current = null;          // current page object
+      var current = null;
       var dirty = false;
-      var mode = "text";           // "text" | "arrange"
-      var selected = null;         // selected element in arrange mode
-      var undoStack = [];          // serialized snapshots (max 50)
+      var mode = "text";
+      var selected = null;
+      var undoStack = [];
       var restoring = false;
 
       var supported = "showDirectoryPicker" in window;
@@ -211,7 +280,18 @@
       function slugify(s) {
         var map = { "ç": "c", "ğ": "g", "ı": "i", "ö": "o", "ş": "s", "ü": "u" };
         return s.toLowerCase().replace(/[çğıöşü]/g, function (c) { return map[c]; })
-                .replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 60) || "yeni-haber";
+                .replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 60);
+      }
+      function serializeDoc(doc) {
+        return "<!DOCTYPE html>\n" + doc.documentElement.outerHTML + "\n";
+      }
+      function parseHtml(text) {
+        return new DOMParser().parseFromString(text, "text/html");
+      }
+      function stripPrefix(h) { return (h || "").replace(/^(\.\.\/)+/, ""); }
+      async function readPage(p) { return (await p.handle.getFile()).text(); }
+      async function writePage(p, text) {
+        var w = await p.handle.createWritable(); await w.write(text); await w.close();
       }
 
       /* ================= folder / pages ================= */
@@ -224,6 +304,7 @@
           dirHandle = dh;
           await scanFolder();
           $("newPageBtn").disabled = false;
+          $("newPostBtn").disabled = false;
           var idx = pages.find(function (p) { return p.path === "index.html"; });
           if (idx) loadPage(idx);
           flash("Klasör açıldı ✓ / Folder opened ✓");
@@ -238,27 +319,21 @@
         for await (var entry of dirHandle.values()) {
           if (entry.kind === "file") {
             if (/\.html?$/i.test(entry.name) && entry.name !== "editor.html") {
-              pages.push({ path: entry.name, name: entry.name, inNews: false, handle: entry });
+              pages.push({ path: entry.name, name: entry.name, dir: "", depth: 0, handle: entry });
             } else if (imgExt.test(entry.name)) {
               images.push({ path: entry.name, handle: entry });
             }
           } else if (entry.kind === "directory" && entry.name !== ".git") {
             for await (var sub of entry.values()) {
               if (sub.kind !== "file") continue;
-              if (entry.name === "news" && /\.html?$/i.test(sub.name)) {
-                pages.push({ path: "news/" + sub.name, name: sub.name, inNews: true, handle: sub });
+              if (/\.html?$/i.test(sub.name)) {
+                pages.push({ path: entry.name + "/" + sub.name, name: sub.name, dir: entry.name, depth: 1, handle: sub });
               } else if (imgExt.test(sub.name)) {
                 images.push({ path: entry.name + "/" + sub.name, handle: sub });
               }
             }
           }
         }
-        var order = { "index.html": 0, "team.html": 1, "news.html": 2 };
-        pages.sort(function (a, b) {
-          var oa = a.inNews ? 10 : (order[a.path] !== undefined ? order[a.path] : 5);
-          var ob = b.inNews ? 10 : (order[b.path] !== undefined ? order[b.path] : 5);
-          return oa - ob || a.path.localeCompare(b.path);
-        });
         renderPageList();
       }
 
@@ -266,24 +341,42 @@
         var box = $("pageList");
         box.innerHTML = "";
         if (!pages.length) return;
-        pages.forEach(function (p) {
-          var b = document.createElement("button");
-          b.className = "page-item" + (current && current.path === p.path ? " active" : "");
-          b.innerHTML = (current && current.path === p.path && dirty ? "● " : "") + p.name +
-                        (p.inNews ? '<span class="sub">news/</span>' : "");
-          b.addEventListener("click", function () { if (confirmDiscard()) loadPage(p); });
-          box.appendChild(b);
+        var order = { "index.html": 0, "team.html": 1, "news.html": 2 };
+        var roots = pages.filter(function (p) { return p.depth === 0; }).sort(function (a, b) {
+          var oa = order[a.path] !== undefined ? order[a.path] : 5;
+          var ob = order[b.path] !== undefined ? order[b.path] : 5;
+          return oa - ob || a.path.localeCompare(b.path);
         });
-        $("delPageBtn").disabled = !(current && current.inNews);
+        var subs = pages.filter(function (p) { return p.depth === 1; })
+                        .sort(function (a, b) { return a.path.localeCompare(b.path); });
+        var used = {};
+        function item(p, isSub) {
+          var b = document.createElement("button");
+          b.className = "page-item" + (isSub ? " sub" : "") +
+                        (current && current.path === p.path ? " active" : "");
+          b.textContent = (current && current.path === p.path && dirty ? "● " : "") +
+                          (isSub ? "↳ " : "") + p.name;
+          b.addEventListener("click", function () { if (confirmDiscard()) loadPage(p); });
+          return b;
+        }
+        roots.forEach(function (r) {
+          box.appendChild(item(r, false));
+          var base = r.name.replace(/\.html?$/i, "");
+          subs.forEach(function (s) {
+            if (s.dir === base) { used[s.path] = 1; box.appendChild(item(s, true)); }
+          });
+        });
+        subs.forEach(function (s) { if (!used[s.path]) box.appendChild(item(s, true)); });
+        $("delPageBtn").disabled = !(current && current.path !== "index.html" && dirHandle);
       }
 
       async function loadPage(page) {
-        var file = await page.handle.getFile();
-        var text = await file.text();
+        var text = await readPage(page);
         current = page;
         undoStack = []; $("undoBtn").disabled = true;
         clearSelection();
         loadHtml(text, page.path);
+        $("insertGroup").hidden = false;
         renderPageList();
       }
 
@@ -292,6 +385,7 @@
         var prepared = text.replace(/<script(?=[\s>])/gi, '<script data-editor-disabled type="text/plain"');
         frame.srcdoc = prepared;
         setDirty(false);
+        $("insertGroup").hidden = false;
       }
 
       frame.addEventListener("load", function () {
@@ -308,7 +402,6 @@
             '[contenteditable="true"]:hover { outline: 2px solid #3d5a94; cursor: text; }' +
             '[contenteditable="true"]:focus { outline: 2px solid #ffb224; }' +
             '.krg-selected { outline: 3px solid #ff9f1c !important; outline-offset: 2px; }' +
-            'body.krg-arrange *:hover { cursor: default; }' +
             '.reveal { opacity: 1 !important; transform: none !important; }' +
             'html { scroll-behavior: auto; }';
           doc.head.appendChild(st);
@@ -327,12 +420,11 @@
         applyMode();
       });
 
-      /* ================= text mode ================= */
+      /* ================= modes ================= */
       function applyMode() {
         var doc = frame.contentDocument;
         if (!doc || !doc.body) return;
         if (mode === "text") {
-          doc.body.classList.remove("krg-arrange");
           doc.querySelectorAll(".tr, .en").forEach(function (el) { el.setAttribute("contenteditable", "true"); });
           doc.querySelectorAll("h1,h2,h3,h4,p,li,time").forEach(function (el) {
             if (!el.querySelector(".tr, .en") && !el.closest('[contenteditable="true"]')) {
@@ -341,7 +433,6 @@
           });
           clearSelection();
         } else {
-          doc.body.classList.add("krg-arrange");
           doc.querySelectorAll("[contenteditable]").forEach(function (el) { el.removeAttribute("contenteditable"); });
         }
         $("modeText").classList.toggle("on", mode === "text");
@@ -350,10 +441,10 @@
       $("modeText").addEventListener("click", function () { mode = "text"; applyMode(); });
       $("modeArrange").addEventListener("click", function () { mode = "arrange"; applyMode(); });
 
-      /* ================= arrange mode: selection ================= */
+      /* ================= selection ================= */
       var SELECTABLE = ".member-card,.news-card,.research-card,.lead-card,.fact-card,.article-quote," +
                        "li,.btn,a,img,.avatar,.chip,h1,h2,h3,h4,p,blockquote,time,.hero-badge," +
-                       ".news-card-banner,.research-icon,section,footer,aside";
+                       ".news-card-banner,.research-icon,ul,section,footer,aside";
 
       function selectFrom(target) {
         var el = target.closest(SELECTABLE);
@@ -380,7 +471,7 @@
         $("selTools").hidden = true;
       }
 
-      /* ================= arrange mode: actions ================= */
+      /* ================= undo ================= */
       function pushUndo() {
         var doc = frame.contentDocument;
         var clone = doc.documentElement.cloneNode(true);
@@ -399,6 +490,7 @@
         setTimeout(function () { restoring = false; }, 300);
       });
 
+      /* ================= arrange actions ================= */
       $("delBtn").addEventListener("click", function () {
         if (!selected) return;
         if (!confirm("Seçili öğe silinsin mi? / Delete the selected element?")) return;
@@ -461,7 +553,6 @@
         $("undoBtn").disabled = !undoStack.length;
       });
 
-      /* ================= image picker ================= */
       $("imgBtn").addEventListener("click", async function () {
         if (!selected) return;
         var img = selected.tagName === "IMG" ? selected : selected.querySelector("img");
@@ -470,13 +561,111 @@
         var chosen = await pickImage();
         if (!chosen) return;
         pushUndo();
-        var rel = (current && current.inNews ? "../" : "") + chosen.path;
-        img.setAttribute("src", rel);
+        img.setAttribute("src", assetPrefix() + chosen.path);
         var alt = prompt("Görsel açıklaması (alt) / Image description:", img.getAttribute("alt") || "");
         if (alt !== null) img.setAttribute("alt", alt);
         setDirty(true);
       });
 
+      function assetPrefix() { return current && current.depth === 1 ? "../" : ""; }
+
+      /* ================= insert blocks ================= */
+      function makeBlock(type) {
+        var doc = frame.contentDocument;
+        var el;
+        if (type === "heading") {
+          el = doc.createElement("h2");
+          el.innerHTML = '<span class="tr">Yeni Başlık</span> <span class="en">New Heading</span>';
+        } else if (type === "text") {
+          el = doc.createElement("p");
+          el.innerHTML = '<span class="tr">Yeni paragraf metni.</span> <span class="en">New paragraph text.</span>';
+        } else if (type === "button") {
+          el = doc.createElement("a");
+          el.className = "btn btn-primary";
+          el.setAttribute("href", "#");
+          el.innerHTML = '<span class="tr">Buton</span><span class="en">Button</span>';
+        } else if (type === "list") {
+          el = doc.createElement("ul");
+          el.innerHTML = '<li><span class="tr">Madde 1</span> <span class="en">Item 1</span></li>' +
+                         '<li><span class="tr">Madde 2</span> <span class="en">Item 2</span></li>';
+        } else if (type === "quote") {
+          el = doc.createElement("div");
+          el.className = "article-quote";
+          el.innerHTML = '<span class="tr">Alıntı metni.</span> <span class="en">Quote text.</span>';
+        } else if (type === "card") {
+          el = doc.createElement("div");
+          el.className = "research-card";
+          el.innerHTML = '<h3><span class="tr">Kart Başlığı</span><span class="en">Card Title</span></h3>' +
+                         '<p><span class="tr">Kart metni.</span> <span class="en">Card text.</span></p>';
+        } else if (type === "section") {
+          el = doc.createElement("section");
+          el.innerHTML = '\n    <div class="container">\n      ' +
+                         '<h2 class="section-title"><span class="tr">Yeni Bölüm</span> <span class="en">New Section</span></h2>\n      ' +
+                         '<p><span class="tr">Bölüm içeriği.</span> <span class="en">Section content.</span></p>\n    </div>\n  ';
+        }
+        return el;
+      }
+
+      function placeBlock(el, atSectionLevel) {
+        var doc = frame.contentDocument;
+        var footer = doc.querySelector("body > footer");
+        if (atSectionLevel) {
+          var refSec = selected && selected.closest("section");
+          if (refSec && refSec.parentElement === doc.body) refSec.after(el);
+          else if (footer) doc.body.insertBefore(el, footer);
+          else doc.body.appendChild(el);
+        } else if (selected && selected.parentElement) {
+          selected.after(el);
+        } else {
+          var containers = doc.querySelectorAll("body > section .container, main .article-body");
+          var target = containers.length ? containers[containers.length - 1] : doc.body;
+          target.appendChild(el);
+        }
+      }
+
+      function insertBlock(type) {
+        var doc = frame.contentDocument;
+        if (!doc || !doc.body || !doc.body.childElementCount) return null;
+        if (type === "image") { insertImageBlock(); return null; }
+        var el = makeBlock(type);
+        if (!el) return null;
+        pushUndo();
+        placeBlock(el, type === "section");
+        setDirty(true);
+        if (mode === "arrange") setSelected(el); else applyMode();
+        el.scrollIntoView({ block: "center" });
+        if (type === "button") {
+          var h = prompt("Buton bağlantısı / Button link:", "#");
+          if (h) el.setAttribute("href", h);
+        }
+        return el;
+      }
+
+      async function insertImageBlock() {
+        if (!images.length) { flash("Klasörde görsel bulunamadı / No images found in folder", true); return; }
+        var chosen = await pickImage();
+        if (!chosen) return;
+        var doc = frame.contentDocument;
+        var el = doc.createElement("img");
+        el.setAttribute("src", assetPrefix() + chosen.path);
+        el.setAttribute("alt", "");
+        el.setAttribute("loading", "lazy");
+        el.style.cssText = "max-width:100%;border-radius:14px;margin:8px 0;";
+        pushUndo();
+        placeBlock(el, false);
+        setDirty(true);
+        var alt = prompt("Görsel açıklaması / Image description:", "");
+        if (alt !== null) el.setAttribute("alt", alt);
+        if (mode === "arrange") setSelected(el);
+        el.scrollIntoView({ block: "center" });
+      }
+
+      $("insertGroup").addEventListener("click", function (e) {
+        var b = e.target.closest("button[data-block]");
+        if (b) insertBlock(b.getAttribute("data-block"));
+      });
+
+      /* ================= image picker ================= */
       function pickImage() {
         return new Promise(async function (resolve) {
           var wrap = $("modalWrap"), grid = $("imgGrid");
@@ -515,8 +704,6 @@
         clone.querySelectorAll("[data-editor-only]").forEach(function (n) { n.remove(); });
         clone.querySelectorAll("[contenteditable]").forEach(function (n) { n.removeAttribute("contenteditable"); });
         clone.querySelectorAll(".krg-selected").forEach(function (n) { n.classList.remove("krg-selected"); });
-        var body = clone.querySelector("body");
-        if (body) body.classList.remove("krg-arrange");
         clone.querySelectorAll("script[data-editor-disabled]").forEach(function (s) {
           s.removeAttribute("type"); s.removeAttribute("data-editor-disabled");
         });
@@ -526,16 +713,173 @@
       $("saveBtn").addEventListener("click", async function () {
         if (!current || !current.handle) return;
         try {
-          var w = await current.handle.createWritable();
-          await w.write(serialize());
-          await w.close();
+          await writePage(current, serialize());
           setDirty(false);
           flash("Kaydedildi ✓ / Saved ✓");
         } catch (err) { flash("Hata / Error: " + err.message, true); }
       });
 
-      /* ================= new post page ================= */
-      $("newPageBtn").addEventListener("click", async function () {
+      /* ================= page templates ================= */
+      function rewriteRelative(doc, prefix) {
+        ["href", "src"].forEach(function (attr) {
+          doc.querySelectorAll("[" + attr + "]").forEach(function (el) {
+            var v = el.getAttribute(attr);
+            if (!v || /^(https?:|#|data:|mailto:|\/|\.\.\/)/i.test(v)) return;
+            el.setAttribute(attr, prefix + v);
+          });
+        });
+      }
+
+      function buildPageDoc(templateText, opts) {
+        var doc = parseHtml(templateText);
+        doc.title = opts.trTitle + " | Küçükkolbaşı Research Group";
+        var md = doc.querySelector('meta[name="description"]');
+        if (md) md.setAttribute("content", opts.trTitle + " — Küçükkolbaşı Research Group.");
+        doc.querySelectorAll("body > section, body > main").forEach(function (s) { s.remove(); });
+        doc.querySelectorAll(".nav-links a.active").forEach(function (a) { a.classList.remove("active"); });
+        var footer = doc.querySelector("body > footer");
+        var hero = doc.createElement("section");
+        hero.className = "page-hero";
+        hero.innerHTML = '\n    <div class="container">\n      <h1><span class="tr"></span><span class="en"></span></h1>\n      ' +
+                         '<p><span class="tr">Sayfa açıklamasını buraya yazın.</span> <span class="en">Write the page description here.</span></p>\n    </div>\n  ';
+        hero.querySelector("h1 .tr").textContent = opts.trTitle;
+        hero.querySelector("h1 .en").textContent = opts.enTitle;
+        var content = doc.createElement("section");
+        content.innerHTML = '\n    <div class="container">\n      ' +
+                            '<p><span class="tr">Sayfa içeriğini buraya yazın.</span> <span class="en">Write the page content here.</span></p>\n    </div>\n  ';
+        if (footer) { doc.body.insertBefore(hero, footer); doc.body.insertBefore(content, footer); }
+        else { doc.body.appendChild(hero); doc.body.appendChild(content); }
+        if (opts.depth === 1) rewriteRelative(doc, "../");
+        return doc;
+      }
+
+      function addNavItemToDoc(doc, item) {
+        var ul = doc.querySelector(".nav-links");
+        if (!ul) return false;
+        var exists = Array.prototype.some.call(ul.querySelectorAll("a[href]"), function (a) {
+          return stripPrefix(a.getAttribute("href")) === stripPrefix(item.href);
+        });
+        if (exists) return false;
+        var li = doc.createElement("li");
+        li.innerHTML = '<a href=""><span class="tr"></span><span class="en"></span></a>';
+        li.querySelector("a").setAttribute("href", item.href);
+        li.querySelector(".tr").textContent = item.tr;
+        li.querySelector(".en").textContent = item.en;
+        ul.appendChild(li);
+        return true;
+      }
+
+      function addSubpageLinkToDoc(doc, item) {
+        var list = doc.querySelector(".subpage-list");
+        if (!list) {
+          var sec = doc.createElement("section");
+          sec.className = "subpages bg-soft";
+          sec.innerHTML = '\n    <div class="container">\n      ' +
+                          '<h2 class="section-title"><span class="tr">Alt Sayfalar</span><span class="en">Subpages</span></h2>\n      ' +
+                          '<ul class="subpage-list"></ul>\n    </div>\n  ';
+          var footer = doc.querySelector("body > footer");
+          if (footer) doc.body.insertBefore(sec, footer); else doc.body.appendChild(sec);
+          list = sec.querySelector(".subpage-list");
+        }
+        var li = doc.createElement("li");
+        li.innerHTML = '<a href=""><span class="tr"></span><span class="en"></span> →</a>';
+        li.querySelector("a").setAttribute("href", item.href);
+        li.querySelector(".tr").textContent = item.tr;
+        li.querySelector(".en").textContent = item.en;
+        list.appendChild(li);
+      }
+
+      /* ================= new page modal ================= */
+      $("newPageBtn").addEventListener("click", function () {
+        if (!dirHandle || !confirmDiscard()) return;
+        $("npTr").value = ""; $("npEn").value = ""; $("npSlug").value = "";
+        $("npType").value = "main";
+        $("npNav").checked = true; $("npParentLink").checked = true;
+        var sel = $("npParent");
+        sel.innerHTML = "";
+        pages.filter(function (p) { return p.depth === 0 && p.path !== "index.html"; })
+             .forEach(function (p) {
+               var o = document.createElement("option");
+               o.value = p.path; o.textContent = p.name;
+               sel.appendChild(o);
+             });
+        syncTypeRows();
+        $("pageModalWrap").hidden = false;
+        $("npTr").focus();
+      });
+      function syncTypeRows() {
+        var isSub = $("npType").value === "sub";
+        $("npParentRow").hidden = !isSub;
+        $("npParentLinkRow").hidden = !isSub;
+        $("npNavRow").hidden = isSub;
+      }
+      $("npType").addEventListener("change", syncTypeRows);
+      $("npCancel").addEventListener("click", function () { $("pageModalWrap").hidden = true; });
+
+      $("npCreate").addEventListener("click", async function () {
+        var tr = $("npTr").value.trim();
+        var en = $("npEn").value.trim() || tr;
+        if (!tr) { flash("Türkçe başlık gerekli / Turkish title required", true); return; }
+        var slug = slugify($("npSlug").value.trim() || en);
+        if (!slug) { flash("Geçerli bir dosya adı gerekli / A valid file name is required", true); return; }
+        var isSub = $("npType").value === "sub";
+        var parentPath = $("npParent").value;
+        if (isSub && !parentPath) { flash("Üst sayfa seç / Choose a parent page", true); return; }
+        $("pageModalWrap").hidden = true;
+        try {
+          await createPage({
+            tr: tr, en: en, slug: slug, isSub: isSub, parentPath: parentPath,
+            addNav: !isSub && $("npNav").checked,
+            addParentLink: isSub && $("npParentLink").checked
+          });
+        } catch (err) { flash("Hata / Error: " + err.message, true); }
+      });
+
+      async function createPage(v) {
+        var indexPage = pages.find(function (p) { return p.path === "index.html"; });
+        var tplText = await readPage(indexPage);
+        var depth = v.isSub ? 1 : 0;
+        var doc = buildPageDoc(tplText, { trTitle: v.tr, enTitle: v.en, depth: depth });
+        var fname = v.slug + ".html";
+        var targetDir = dirHandle, pathStr = fname, folder = "";
+        if (v.isSub) {
+          folder = v.parentPath.replace(/\.html?$/i, "");
+          targetDir = await dirHandle.getDirectoryHandle(folder, { create: true });
+          pathStr = folder + "/" + fname;
+        }
+        var exists = true;
+        try { await targetDir.getFileHandle(fname); } catch (e) { exists = false; }
+        if (exists) { flash("Bu isimde dosya zaten var / A file with this name exists", true); return; }
+        var fh = await targetDir.getFileHandle(fname, { create: true });
+        var w = await fh.createWritable(); await w.write(serializeDoc(doc)); await w.close();
+
+        await scanFolder();
+
+        if (v.addNav) {
+          for (var i = 0; i < pages.length; i++) {
+            var p = pages[i];
+            var d = parseHtml(await readPage(p));
+            var href = (p.depth === 1 ? "../" : "") + pathStr;
+            if (addNavItemToDoc(d, { href: href, tr: v.tr, en: v.en })) {
+              await writePage(p, serializeDoc(d));
+            }
+          }
+        }
+        if (v.isSub && v.addParentLink) {
+          var parent = pages.find(function (p) { return p.path === v.parentPath; });
+          if (parent) {
+            var pd = parseHtml(await readPage(parent));
+            addSubpageLinkToDoc(pd, { href: pathStr, tr: v.tr, en: v.en });
+            await writePage(parent, serializeDoc(pd));
+          }
+        }
+        var np = pages.find(function (p) { return p.path === pathStr; });
+        if (np) loadPage(np);
+        flash("Sayfa oluşturuldu ✓ / Page created ✓");
+      }
+
+      /* ================= new post (news template) ================= */
+      $("newPostBtn").addEventListener("click", async function () {
         if (!dirHandle || !confirmDiscard()) return;
         try {
           var trTitle = prompt("Haberin Türkçe başlığı / Turkish title:");
@@ -545,19 +889,17 @@
           var isNews = confirm("Bu bir grup haberi mi? / Is this group news?\n(Tamam/OK = Grup Haberleri, İptal/Cancel = Uzmanlık/Expertise)");
           var chipTr = isNews ? "Grup Haberleri" : "Uzmanlık";
           var chipEn = isNews ? "Group News" : "Expertise";
-          var slug = prompt("Dosya adı / File name:", slugify(enTitle));
+          var slug = slugify(prompt("Dosya adı / File name:", slugify(enTitle)) || "");
           if (!slug) return;
-          slug = slugify(slug);
 
-          var newsDir = await dirHandle.getDirectoryHandle("news");
+          var newsDir = await dirHandle.getDirectoryHandle("news", { create: true });
           var exists = true;
           try { await newsDir.getFileHandle(slug + ".html"); } catch (e) { exists = false; }
           if (exists) { flash("Bu isimde dosya zaten var / A file with this name exists", true); return; }
 
-          /* build the article from an existing one as template */
           var tplHandle = await newsDir.getFileHandle("mof-nedir.html");
           var tplText = await (await tplHandle.getFile()).text();
-          var doc = new DOMParser().parseFromString(tplText, "text/html");
+          var doc = parseHtml(tplText);
           var t = today();
 
           doc.title = trTitle + " | Küçükkolbaşı Research Group";
@@ -579,14 +921,12 @@
 
           var fh = await newsDir.getFileHandle(slug + ".html", { create: true });
           var w = await fh.createWritable();
-          await w.write("<!DOCTYPE html>\n" + doc.documentElement.outerHTML + "\n");
+          await w.write(serializeDoc(doc));
           await w.close();
 
-          /* add a card to news.html */
           var listPage = pages.find(function (p) { return p.path === "news.html"; });
           if (listPage) {
-            var listText = await (await listPage.handle.getFile()).text();
-            var ldoc = new DOMParser().parseFromString(listText, "text/html");
+            var ldoc = parseHtml(await readPage(listPage));
             var grid = ldoc.querySelector(".news-grid");
             var first = grid && grid.querySelector(".news-card");
             if (first) {
@@ -607,9 +947,7 @@
               var more = card.querySelector(".news-more");
               if (more) more.setAttribute("href", "news/" + slug + ".html");
               grid.prepend(card);
-              var lw = await listPage.handle.createWritable();
-              await lw.write("<!DOCTYPE html>\n" + ldoc.documentElement.outerHTML + "\n");
-              await lw.close();
+              await writePage(listPage, serializeDoc(ldoc));
             }
           }
 
@@ -620,37 +958,49 @@
         } catch (err) { flash("Hata / Error: " + err.message, true); }
       });
 
-      /* ================= delete post page ================= */
+      /* ================= delete page ================= */
       $("delPageBtn").addEventListener("click", async function () {
-        if (!current || !current.inNews || !dirHandle) return;
-        var fname = current.name;
-        if (!confirm('"' + fname + '" haberi silinsin mi? / Delete this post?')) return;
-        if (!confirm("Emin misin? Dosya diskten silinecek (git geçmişindeki eski sürümler durur). / Are you sure? The file will be removed from disk.")) return;
+        if (!current || current.path === "index.html" || !dirHandle) return;
+        var fpath = current.path, fname = current.name, fdir = current.dir;
+        if (!confirm('"' + fpath + '" sayfası silinsin mi? / Delete this page?')) return;
+        if (!confirm("Emin misin? Dosya diskten silinecek; diğer sayfalardaki bağlantıları da temizlenecek. (Yayınlanmış eski sürümler git geçmişinde durur.) / Are you sure? The file and its links on other pages will be removed.")) return;
         try {
-          var newsDir = await dirHandle.getDirectoryHandle("news");
-          await newsDir.removeEntry(fname);
-          /* remove cards linking to it on news.html and index.html */
+          var dir = fdir ? await dirHandle.getDirectoryHandle(fdir) : dirHandle;
+          await dir.removeEntry(fname);
+
           for (var i = 0; i < pages.length; i++) {
             var p = pages[i];
-            if (p.path !== "news.html" && p.path !== "index.html") continue;
-            var txt = await (await p.handle.getFile()).text();
-            var d = new DOMParser().parseFromString(txt, "text/html");
-            var removed = false;
+            if (p.path === fpath) continue;
+            var d = parseHtml(await readPage(p));
+            var changed = false;
+            d.querySelectorAll(".nav-links a[href]").forEach(function (a) {
+              if (stripPrefix(a.getAttribute("href")) === fpath) {
+                (a.closest("li") || a).remove(); changed = true;
+              }
+            });
             d.querySelectorAll(".news-card").forEach(function (card) {
               var a = card.querySelector("a[href]");
-              if (a && a.getAttribute("href").indexOf(fname) !== -1) { card.remove(); removed = true; }
+              if (a && stripPrefix(a.getAttribute("href")) === fpath) { card.remove(); changed = true; }
             });
-            if (removed) {
-              var w = await p.handle.createWritable();
-              await w.write("<!DOCTYPE html>\n" + d.documentElement.outerHTML + "\n");
-              await w.close();
-            }
+            d.querySelectorAll(".subpage-list a[href]").forEach(function (a) {
+              if (stripPrefix(a.getAttribute("href")) === fpath) {
+                var li = a.closest("li");
+                var list = li && li.parentElement;
+                if (li) li.remove(); changed = true;
+                if (list && !list.children.length) {
+                  var sec = list.closest("section.subpages");
+                  if (sec) sec.remove();
+                }
+              }
+            });
+            if (changed) await writePage(p, serializeDoc(d));
           }
+
           current = null; dirty = false;
           await scanFolder();
-          var idx = pages.find(function (pp) { return pp.path === "news.html"; });
+          var idx = pages.find(function (p) { return p.path === "index.html"; });
           if (idx) loadPage(idx);
-          flash("Haber silindi ✓ / Post deleted ✓");
+          flash("Sayfa silindi ✓ / Page deleted ✓");
         } catch (err) { flash("Hata / Error: " + err.message, true); }
       });
 
@@ -660,11 +1010,19 @@
 
       /* exposed for testing and console use */
       window.krgEditor = {
-        loadHtml: loadHtml, serialize: serialize,
+        loadHtml: loadHtml, serialize: serialize, insertBlock: insertBlock,
         setMode: function (m) { mode = m; applyMode(); },
         getState: function () {
-          return { mode: mode, dirty: dirty, pages: pages.map(function (p) { return p.path; }),
+          return { mode: mode, dirty: dirty, currentPath: current ? current.path : null,
+                   pages: pages.map(function (p) { return p.path; }),
                    selected: selected ? selected.tagName : null, undoDepth: undoStack.length };
+        },
+        _buildPage: function (text, opts) { return serializeDoc(buildPageDoc(text, opts)); },
+        _addNavItem: function (text, item) {
+          var d = parseHtml(text); addNavItemToDoc(d, item); return serializeDoc(d);
+        },
+        _addSubpageLink: function (text, item) {
+          var d = parseHtml(text); addSubpageLinkToDoc(d, item); return serializeDoc(d);
         }
       };
     })();
