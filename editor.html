@@ -10,110 +10,287 @@
     body {
       font-family: "Segoe UI", sans-serif;
       display: flex; flex-direction: column;
-      background: #f6f8fc;
+      background: #f6f8fc; color: #1c2536;
     }
+
+    /* ---------- top bar ---------- */
     .bar {
-      display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+      display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
       background: #16233f; color: #dde4f2;
-      padding: 10px 16px;
-    }
-    .bar strong { color: #fff; font-size: 0.95rem; margin-right: 4px; }
-    .bar button {
-      border: none; border-radius: 8px; cursor: pointer;
-      font: 600 0.85rem "Segoe UI", sans-serif;
       padding: 8px 14px;
+    }
+    .bar strong { color: #fff; font-size: 0.92rem; margin-right: 2px; }
+    .bar button, .modal button {
+      border: none; border-radius: 8px; cursor: pointer;
+      font: 600 0.8rem "Segoe UI", sans-serif;
+      padding: 7px 12px;
       background: #2e4778; color: #fff;
+      white-space: nowrap;
     }
     .bar button:hover:not(:disabled) { background: #3d5a94; }
-    .bar button:disabled { opacity: 0.4; cursor: not-allowed; }
+    .bar button:disabled { opacity: 0.35; cursor: not-allowed; }
     #saveBtn { background: #1e7a4f; }
     #saveBtn:hover:not(:disabled) { background: #239159; }
-    #fileName { font-size: 0.82rem; color: #7c9cc4; }
-    .legend { display: flex; align-items: center; gap: 6px; font-size: 0.78rem; margin-left: auto; }
-    .sw { display: inline-block; width: 12px; height: 12px; border-radius: 3px; }
-    .sw.tr { background: rgba(255, 178, 36, 0.55); }
-    .sw.en { background: rgba(61, 90, 148, 0.65); }
-    #status { font-size: 0.82rem; font-weight: 600; min-width: 90px; }
+    .mode-group { display: flex; border-radius: 8px; overflow: hidden; }
+    .mode-group button { border-radius: 0; background: #1e3055; }
+    .mode-group button.on { background: #7c9cc4; color: #101a30; }
+    .sel-tools { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    .sel-tools[hidden] { display: none; }
+    #selLabel {
+      font: 600 0.75rem Consolas, monospace; color: #ffb224;
+      background: rgba(255,178,36,0.12); border: 1px solid rgba(255,178,36,0.4);
+      border-radius: 6px; padding: 4px 8px;
+    }
+    .sel-tools button { background: #3d5a94; padding: 6px 9px; }
+    .sel-tools button.danger { background: #8a2f2f; }
+    .sel-tools button.danger:hover { background: #a83a3a; }
+    .legend { display: flex; align-items: center; gap: 6px; font-size: 0.74rem; margin-left: auto; }
+    .sw { display: inline-block; width: 11px; height: 11px; border-radius: 3px; }
+    .sw.tr { background: rgba(255, 178, 36, 0.6); }
+    .sw.en { background: rgba(61, 90, 148, 0.7); }
+    #status { font-size: 0.8rem; font-weight: 600; min-width: 80px; }
     #status.ok { color: #7fe0a8; }
     #status.err { color: #ff9b9b; }
+
+    /* ---------- hint ---------- */
     #hint {
       background: #dde4f2; color: #1e3055;
-      font-size: 0.83rem; line-height: 1.5;
-      padding: 10px 16px;
+      font-size: 0.8rem; line-height: 1.45;
+      padding: 8px 14px;
       border-bottom: 1px solid #c3cee6;
     }
     #hint b { color: #16233f; }
-    #unsupported {
-      background: #ffe3e3; color: #7a1f1f;
-      padding: 10px 16px; font-size: 0.85rem;
+    #unsupported { background: #ffe3e3; color: #7a1f1f; padding: 10px 14px; font-size: 0.85rem; }
+
+    /* ---------- layout ---------- */
+    #main { flex: 1; display: flex; min-height: 0; }
+    #sidebar {
+      width: 210px; flex-shrink: 0;
+      background: #fff; border-right: 1px solid #e3e8f2;
+      display: flex; flex-direction: column;
+      overflow-y: auto;
     }
-    #frame { flex: 1; width: 100%; border: none; background: #fff; }
+    #sidebar h4 {
+      font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase;
+      color: #55617a; padding: 12px 14px 6px;
+    }
+    .page-item {
+      display: block; width: 100%; text-align: left;
+      border: none; background: none; cursor: pointer;
+      font: 500 0.85rem "Segoe UI", sans-serif; color: #1c2536;
+      padding: 8px 14px;
+    }
+    .page-item:hover { background: #f6f8fc; }
+    .page-item.active { background: #dde4f2; font-weight: 700; color: #16233f; }
+    .page-item .sub { color: #7c9cc4; font-size: 0.72rem; display: block; }
+    #sideActions { margin-top: auto; padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+    #sideActions button { width: 100%; }
+    #newPageBtn { background: #2e4778; color: #fff; border: none; border-radius: 8px; padding: 9px; font-weight: 600; cursor: pointer; }
+    #delPageBtn { background: #fff; color: #8a2f2f; border: 1.5px solid #e3b3b3; border-radius: 8px; padding: 8px; font-weight: 600; cursor: pointer; }
+    #delPageBtn:disabled { opacity: 0.35; cursor: not-allowed; }
+    #frame { flex: 1; border: none; background: #fff; min-width: 0; }
+
+    /* ---------- image picker modal ---------- */
+    #modalWrap {
+      position: fixed; inset: 0; z-index: 50;
+      background: rgba(16, 26, 48, 0.55);
+      display: grid; place-items: center;
+    }
+    .modal {
+      background: #fff; border-radius: 14px; padding: 20px;
+      width: min(640px, 92vw); max-height: 80vh; overflow-y: auto;
+    }
+    .modal h3 { font-size: 1rem; color: #16233f; margin-bottom: 14px; }
+    .img-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px; }
+    .img-choice { border: 2px solid #e3e8f2; border-radius: 10px; background: #fff; cursor: pointer; padding: 6px; }
+    .img-choice:hover { border-color: #2e4778; }
+    .img-choice img { width: 100%; height: 80px; object-fit: cover; border-radius: 6px; display: block; }
+    .img-choice span { display: block; font-size: 0.68rem; color: #55617a; margin-top: 4px; word-break: break-all; }
+    .modal .close-row { margin-top: 14px; text-align: right; }
     [hidden] { display: none !important; }
   </style>
 </head>
 <body>
 
   <header class="bar">
-    <strong>✏️ Site Editörü</strong>
-    <button id="openBtn">📂 Sayfa Aç / Open</button>
+    <strong>✏️ Editör</strong>
+    <button id="openBtn">📂 Site Klasörünü Aç / Open Folder</button>
     <button id="saveBtn" disabled>💾 Kaydet / Save</button>
-    <span id="fileName"></span>
+    <button id="undoBtn" disabled>↩ Geri Al / Undo</button>
+    <span class="mode-group">
+      <button id="modeText" class="on">✏️ Metin / Text</button>
+      <button id="modeArrange">🧩 Düzen / Arrange</button>
+    </span>
+    <span class="sel-tools" id="selTools" hidden>
+      <span id="selLabel"></span>
+      <button id="upBtn" title="Yukarı taşı / Move up">⬆</button>
+      <button id="downBtn" title="Aşağı taşı / Move down">⬇</button>
+      <button id="dupBtn" title="Çoğalt / Duplicate">⧉</button>
+      <button id="linkBtn" title="Bağlantıyı düzenle / Edit link">🔗</button>
+      <button id="imgBtn" title="Görseli değiştir / Change image">🖼</button>
+      <button id="parentBtn" title="Üst öğeyi seç / Select parent">⌃ Üst</button>
+      <button id="delBtn" class="danger" title="Sil / Delete">🗑</button>
+    </span>
     <span class="legend">
-      <i class="sw tr"></i> Türkçe
-      <i class="sw en"></i> English
+      <i class="sw tr"></i> TR
+      <i class="sw en"></i> EN
       <span id="status"></span>
     </span>
   </header>
 
   <div id="unsupported" hidden>
-    Bu editör Chrome veya Edge tarayıcısı gerektirir (dosya kaydetme özelliği için). /
-    This editor requires Chrome or Edge (for the file-save feature).
+    Bu editör Chrome veya Edge gerektirir. / This editor requires Chrome or Edge.
   </div>
 
   <div id="hint">
-    <b>Nasıl kullanılır:</b> "Sayfa Aç" ile site klasöründen bir .html dosyası seç → sayfada metne tıkla ve yaz → "Kaydet".
-    Her metnin Türkçesi (sarı) ve İngilizcesi (mavi) yan yana görünür; ikisini de güncellemeyi unutma.
-    Sadece metinleri düzenle — yeni üye/haber eklemek gibi yapısal değişiklikleri Claude'a yaptır. /
-    <b>How to use:</b> "Open" a .html file from the site folder → click any text on the page and type → "Save".
-    Turkish (yellow) and English (blue) versions appear side by side; remember to update both. Edit text only.
+    <b>Metin modu:</b> metne tıkla ve yaz (sarı = TR, mavi = EN — ikisini de güncelle).
+    <b>Düzen modu:</b> bir öğeye tıkla → taşı, çoğalt, sil, bağlantı/görsel değiştir.
+    Her değişiklikten sonra <b>Kaydet</b>'e bas. Yanlışlıkla silersen: Geri Al; kaydedilmiş eski sürümler git geçmişinden kurtarılabilir. /
+    <b>Text mode:</b> click text and type. <b>Arrange mode:</b> click an element → move, duplicate, delete, change link/image. Press <b>Save</b> after changes.
   </div>
 
-  <iframe id="frame" title="Düzenlenen sayfa"></iframe>
+  <div id="main">
+    <aside id="sidebar">
+      <h4>Sayfalar / Pages</h4>
+      <div id="pageList"><button class="page-item" disabled>Önce klasörü aç / Open the folder first</button></div>
+      <div id="sideActions">
+        <button id="newPageBtn" disabled>➕ Yeni Haber Sayfası / New Post</button>
+        <button id="delPageBtn" disabled>🗑 Bu Haberi Sil / Delete Post</button>
+      </div>
+    </aside>
+    <iframe id="frame" title="Düzenlenen sayfa"></iframe>
+  </div>
+
+  <div id="modalWrap" hidden>
+    <div class="modal">
+      <h3>Görsel seç / Choose an image</h3>
+      <div class="img-grid" id="imgGrid"></div>
+      <div class="close-row"><button id="modalClose">Vazgeç / Cancel</button></div>
+    </div>
+  </div>
 
   <script>
     (function () {
-      var frame = document.getElementById("frame");
-      var openBtn = document.getElementById("openBtn");
-      var saveBtn = document.getElementById("saveBtn");
-      var fileNameEl = document.getElementById("fileName");
-      var statusEl = document.getElementById("status");
-      var fileHandle = null;
+      "use strict";
+      var $ = function (id) { return document.getElementById(id); };
+      var frame = $("frame");
+
+      var dirHandle = null;        // FileSystemDirectoryHandle of the site folder
+      var pages = [];              // [{path, name, inNews, handle}]
+      var images = [];             // [{path, handle}]
+      var current = null;          // current page object
       var dirty = false;
+      var mode = "text";           // "text" | "arrange"
+      var selected = null;         // selected element in arrange mode
+      var undoStack = [];          // serialized snapshots (max 50)
+      var restoring = false;
 
-      var supported = "showOpenFilePicker" in window;
-      if (!supported) {
-        document.getElementById("unsupported").hidden = false;
-        openBtn.disabled = true;
-      }
+      var supported = "showDirectoryPicker" in window;
+      if (!supported) { $("unsupported").hidden = false; $("openBtn").disabled = true; }
 
+      /* ================= helpers ================= */
       function flash(msg, isErr) {
-        statusEl.textContent = msg;
-        statusEl.className = isErr ? "err" : "ok";
-        if (!isErr) setTimeout(function () { statusEl.textContent = ""; }, 3000);
+        var s = $("status");
+        s.textContent = msg; s.className = isErr ? "err" : "ok";
+        if (!isErr) setTimeout(function () { s.textContent = ""; }, 3000);
       }
-
       function setDirty(v) {
         dirty = v;
-        saveBtn.disabled = !fileHandle || !v;
+        $("saveBtn").disabled = !v || !current || !current.handle;
+        renderPageList();
+      }
+      function confirmDiscard() {
+        return !dirty || confirm("Kaydedilmemiş değişiklikler var, devam edilsin mi? / Unsaved changes, continue anyway?");
+      }
+      function today() {
+        var d = new Date();
+        var p = function (n) { return String(n).padStart(2, "0"); };
+        return { iso: d.getFullYear() + "-" + p(d.getMonth() + 1) + "-" + p(d.getDate()),
+                 disp: p(d.getDate()) + "." + p(d.getMonth() + 1) + "." + d.getFullYear() };
+      }
+      function slugify(s) {
+        var map = { "ç": "c", "ğ": "g", "ı": "i", "ö": "o", "ş": "s", "ü": "u" };
+        return s.toLowerCase().replace(/[çğıöşü]/g, function (c) { return map[c]; })
+                .replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 60) || "yeni-haber";
       }
 
-      /* Load raw HTML text into the editor iframe.
-         Scripts are neutralised (type="text/plain") so the page stays static while editing;
-         the Save step restores them. */
+      /* ================= folder / pages ================= */
+      $("openBtn").addEventListener("click", async function () {
+        if (!confirmDiscard()) return;
+        try {
+          var dh = await window.showDirectoryPicker({ mode: "readwrite" });
+          try { await dh.getFileHandle("index.html"); }
+          catch (e) { flash("Bu klasörde index.html yok — site klasörünü seç. / No index.html here — pick the site folder.", true); return; }
+          dirHandle = dh;
+          await scanFolder();
+          $("newPageBtn").disabled = false;
+          var idx = pages.find(function (p) { return p.path === "index.html"; });
+          if (idx) loadPage(idx);
+          flash("Klasör açıldı ✓ / Folder opened ✓");
+        } catch (err) {
+          if (err && err.name !== "AbortError") flash("Hata / Error: " + err.message, true);
+        }
+      });
+
+      async function scanFolder() {
+        pages = []; images = [];
+        var imgExt = /\.(jpe?g|png|webp|gif|svg)$/i;
+        for await (var entry of dirHandle.values()) {
+          if (entry.kind === "file") {
+            if (/\.html?$/i.test(entry.name) && entry.name !== "editor.html") {
+              pages.push({ path: entry.name, name: entry.name, inNews: false, handle: entry });
+            } else if (imgExt.test(entry.name)) {
+              images.push({ path: entry.name, handle: entry });
+            }
+          } else if (entry.kind === "directory" && entry.name !== ".git") {
+            for await (var sub of entry.values()) {
+              if (sub.kind !== "file") continue;
+              if (entry.name === "news" && /\.html?$/i.test(sub.name)) {
+                pages.push({ path: "news/" + sub.name, name: sub.name, inNews: true, handle: sub });
+              } else if (imgExt.test(sub.name)) {
+                images.push({ path: entry.name + "/" + sub.name, handle: sub });
+              }
+            }
+          }
+        }
+        var order = { "index.html": 0, "team.html": 1, "news.html": 2 };
+        pages.sort(function (a, b) {
+          var oa = a.inNews ? 10 : (order[a.path] !== undefined ? order[a.path] : 5);
+          var ob = b.inNews ? 10 : (order[b.path] !== undefined ? order[b.path] : 5);
+          return oa - ob || a.path.localeCompare(b.path);
+        });
+        renderPageList();
+      }
+
+      function renderPageList() {
+        var box = $("pageList");
+        box.innerHTML = "";
+        if (!pages.length) return;
+        pages.forEach(function (p) {
+          var b = document.createElement("button");
+          b.className = "page-item" + (current && current.path === p.path ? " active" : "");
+          b.innerHTML = (current && current.path === p.path && dirty ? "● " : "") + p.name +
+                        (p.inNews ? '<span class="sub">news/</span>' : "");
+          b.addEventListener("click", function () { if (confirmDiscard()) loadPage(p); });
+          box.appendChild(b);
+        });
+        $("delPageBtn").disabled = !(current && current.inNews);
+      }
+
+      async function loadPage(page) {
+        var file = await page.handle.getFile();
+        var text = await file.text();
+        current = page;
+        undoStack = []; $("undoBtn").disabled = true;
+        clearSelection();
+        loadHtml(text, page.path);
+        renderPageList();
+      }
+
+      /* ================= iframe load / wire ================= */
       function loadHtml(text, name) {
         var prepared = text.replace(/<script(?=[\s>])/gi, '<script data-editor-disabled type="text/plain"');
         frame.srcdoc = prepared;
-        fileNameEl.textContent = name || "";
         setDirty(false);
       }
 
@@ -121,73 +298,360 @@
         var doc = frame.contentDocument;
         if (!doc || !doc.body || !doc.body.childElementCount) return;
 
-        var st = doc.createElement("style");
-        st.setAttribute("data-editor-only", "");
-        st.textContent =
-          'html[data-lang="tr"] .en, html[data-lang="en"] .tr { display: revert !important; }' +
-          '.tr { background: rgba(255,178,36,.16); box-shadow: inset 0 0 0 1px rgba(255,178,36,.4); }' +
-          '.en { background: rgba(61,90,148,.12); box-shadow: inset 0 0 0 1px rgba(61,90,148,.35); }' +
-          '[contenteditable="true"]:hover { outline: 2px solid #3d5a94; cursor: text; }' +
-          '[contenteditable="true"]:focus { outline: 2px solid #ffb224; }' +
-          '.reveal { opacity: 1 !important; transform: none !important; }' +
-          'html { scroll-behavior: auto; }';
-        doc.head.appendChild(st);
+        if (!doc.querySelector("style[data-editor-only]")) {
+          var st = doc.createElement("style");
+          st.setAttribute("data-editor-only", "");
+          st.textContent =
+            'html[data-lang="tr"] .en, html[data-lang="en"] .tr { display: revert !important; }' +
+            '.tr { background: rgba(255,178,36,.16); box-shadow: inset 0 0 0 1px rgba(255,178,36,.4); }' +
+            '.en { background: rgba(61,90,148,.12); box-shadow: inset 0 0 0 1px rgba(61,90,148,.35); }' +
+            '[contenteditable="true"]:hover { outline: 2px solid #3d5a94; cursor: text; }' +
+            '[contenteditable="true"]:focus { outline: 2px solid #ffb224; }' +
+            '.krg-selected { outline: 3px solid #ff9f1c !important; outline-offset: 2px; }' +
+            'body.krg-arrange *:hover { cursor: default; }' +
+            '.reveal { opacity: 1 !important; transform: none !important; }' +
+            'html { scroll-behavior: auto; }';
+          doc.head.appendChild(st);
+        }
 
-        /* bilingual spans are always editable */
-        doc.querySelectorAll(".tr, .en").forEach(function (el) {
-          el.setAttribute("contenteditable", "true");
-        });
-        /* plain single-language text elements (e.g. member names) */
-        doc.querySelectorAll("h1,h2,h3,h4,p,li,time").forEach(function (el) {
-          if (!el.querySelector(".tr, .en") && !el.closest('[contenteditable="true"]')) {
-            el.setAttribute("contenteditable", "true");
-          }
-        });
-
-        /* keep the iframe on the page being edited */
         doc.addEventListener("click", function (e) {
           if (e.target.closest("a")) e.preventDefault();
+          if (mode === "arrange") {
+            e.stopPropagation();
+            selectFrom(e.target);
+          }
         }, true);
+        doc.addEventListener("input", function () { if (!restoring) setDirty(true); });
+        doc.addEventListener("keydown", function (e) { if (e.key === "Escape") clearSelection(); });
 
-        doc.addEventListener("input", function () { setDirty(true); });
+        applyMode();
       });
 
+      /* ================= text mode ================= */
+      function applyMode() {
+        var doc = frame.contentDocument;
+        if (!doc || !doc.body) return;
+        if (mode === "text") {
+          doc.body.classList.remove("krg-arrange");
+          doc.querySelectorAll(".tr, .en").forEach(function (el) { el.setAttribute("contenteditable", "true"); });
+          doc.querySelectorAll("h1,h2,h3,h4,p,li,time").forEach(function (el) {
+            if (!el.querySelector(".tr, .en") && !el.closest('[contenteditable="true"]')) {
+              el.setAttribute("contenteditable", "true");
+            }
+          });
+          clearSelection();
+        } else {
+          doc.body.classList.add("krg-arrange");
+          doc.querySelectorAll("[contenteditable]").forEach(function (el) { el.removeAttribute("contenteditable"); });
+        }
+        $("modeText").classList.toggle("on", mode === "text");
+        $("modeArrange").classList.toggle("on", mode === "arrange");
+      }
+      $("modeText").addEventListener("click", function () { mode = "text"; applyMode(); });
+      $("modeArrange").addEventListener("click", function () { mode = "arrange"; applyMode(); });
+
+      /* ================= arrange mode: selection ================= */
+      var SELECTABLE = ".member-card,.news-card,.research-card,.lead-card,.fact-card,.article-quote," +
+                       "li,.btn,a,img,.avatar,.chip,h1,h2,h3,h4,p,blockquote,time,.hero-badge," +
+                       ".news-card-banner,.research-icon,section,footer,aside";
+
+      function selectFrom(target) {
+        var el = target.closest(SELECTABLE);
+        if (!el || el === frame.contentDocument.body) { clearSelection(); return; }
+        setSelected(el);
+      }
+      function setSelected(el) {
+        clearSelection();
+        selected = el;
+        el.classList.add("krg-selected");
+        var label = el.tagName.toLowerCase();
+        var cls = (el.getAttribute("class") || "").split(/\s+/).filter(function (c) {
+          return c && c !== "krg-selected" && c !== "reveal";
+        })[0];
+        if (cls) label += "." + cls;
+        $("selLabel").textContent = label;
+        $("selTools").hidden = false;
+        $("linkBtn").hidden = !(el.closest("a") || el.querySelector("a"));
+        $("imgBtn").hidden = !(el.tagName === "IMG" || el.querySelector("img"));
+      }
+      function clearSelection() {
+        if (selected) selected.classList.remove("krg-selected");
+        selected = null;
+        $("selTools").hidden = true;
+      }
+
+      /* ================= arrange mode: actions ================= */
+      function pushUndo() {
+        var doc = frame.contentDocument;
+        var clone = doc.documentElement.cloneNode(true);
+        clone.querySelectorAll(".krg-selected").forEach(function (n) { n.classList.remove("krg-selected"); });
+        undoStack.push(clone.outerHTML);
+        if (undoStack.length > 50) undoStack.shift();
+        $("undoBtn").disabled = false;
+      }
+      $("undoBtn").addEventListener("click", function () {
+        if (!undoStack.length) return;
+        restoring = true;
+        clearSelection();
+        frame.srcdoc = undoStack.pop();
+        $("undoBtn").disabled = !undoStack.length;
+        setDirty(true);
+        setTimeout(function () { restoring = false; }, 300);
+      });
+
+      $("delBtn").addEventListener("click", function () {
+        if (!selected) return;
+        if (!confirm("Seçili öğe silinsin mi? / Delete the selected element?")) return;
+        pushUndo();
+        var el = selected; clearSelection();
+        el.remove();
+        setDirty(true);
+      });
+
+      $("dupBtn").addEventListener("click", function () {
+        if (!selected) return;
+        pushUndo();
+        var copy = selected.cloneNode(true);
+        copy.classList.remove("krg-selected");
+        selected.after(copy);
+        setDirty(true);
+        setSelected(copy);
+        copy.scrollIntoView({ block: "center" });
+      });
+
+      $("upBtn").addEventListener("click", function () {
+        if (!selected || !selected.previousElementSibling) return;
+        pushUndo();
+        selected.previousElementSibling.before(selected);
+        setDirty(true);
+        selected.scrollIntoView({ block: "center" });
+      });
+      $("downBtn").addEventListener("click", function () {
+        if (!selected || !selected.nextElementSibling) return;
+        pushUndo();
+        selected.nextElementSibling.after(selected);
+        setDirty(true);
+        selected.scrollIntoView({ block: "center" });
+      });
+
+      $("parentBtn").addEventListener("click", function () {
+        if (!selected) return;
+        var p = selected.parentElement && selected.parentElement.closest(SELECTABLE);
+        if (p && p !== frame.contentDocument.body) setSelected(p);
+      });
+
+      $("linkBtn").addEventListener("click", function () {
+        if (!selected) return;
+        var anchors = selected.tagName === "A" ? [selected]
+                    : (selected.closest("a") ? [selected.closest("a")]
+                    : Array.prototype.slice.call(selected.querySelectorAll("a")));
+        if (!anchors.length) return;
+        var hrefs = [];
+        anchors.forEach(function (a) { var h = a.getAttribute("href") || ""; if (hrefs.indexOf(h) === -1) hrefs.push(h); });
+        pushUndo();
+        var changed = false;
+        hrefs.forEach(function (h) {
+          var nh = prompt("Bağlantı / Link:", h);
+          if (nh !== null && nh !== h) {
+            anchors.forEach(function (a) { if ((a.getAttribute("href") || "") === h) a.setAttribute("href", nh); });
+            changed = true;
+          }
+        });
+        if (changed) setDirty(true); else undoStack.pop();
+        $("undoBtn").disabled = !undoStack.length;
+      });
+
+      /* ================= image picker ================= */
+      $("imgBtn").addEventListener("click", async function () {
+        if (!selected) return;
+        var img = selected.tagName === "IMG" ? selected : selected.querySelector("img");
+        if (!img) return;
+        if (!images.length) { flash("Klasörde görsel bulunamadı / No images found in folder", true); return; }
+        var chosen = await pickImage();
+        if (!chosen) return;
+        pushUndo();
+        var rel = (current && current.inNews ? "../" : "") + chosen.path;
+        img.setAttribute("src", rel);
+        var alt = prompt("Görsel açıklaması (alt) / Image description:", img.getAttribute("alt") || "");
+        if (alt !== null) img.setAttribute("alt", alt);
+        setDirty(true);
+      });
+
+      function pickImage() {
+        return new Promise(async function (resolve) {
+          var wrap = $("modalWrap"), grid = $("imgGrid");
+          grid.innerHTML = "";
+          var urls = [];
+          for (var i = 0; i < images.length; i++) {
+            var im = images[i];
+            var btn = document.createElement("button");
+            btn.className = "img-choice";
+            try {
+              var f = await im.handle.getFile();
+              var u = URL.createObjectURL(f);
+              urls.push(u);
+              btn.innerHTML = '<img src="' + u + '"><span>' + im.path + "</span>";
+            } catch (e) { btn.innerHTML = "<span>" + im.path + "</span>"; }
+            (function (choice) {
+              btn.addEventListener("click", function () { done(choice); });
+            })(im);
+            grid.appendChild(btn);
+          }
+          function done(val) {
+            urls.forEach(function (u) { URL.revokeObjectURL(u); });
+            wrap.hidden = true;
+            $("modalClose").removeEventListener("click", onCancel);
+            resolve(val);
+          }
+          function onCancel() { done(null); }
+          $("modalClose").addEventListener("click", onCancel);
+          wrap.hidden = false;
+        });
+      }
+
+      /* ================= save ================= */
       function serialize() {
         var clone = frame.contentDocument.documentElement.cloneNode(true);
         clone.querySelectorAll("[data-editor-only]").forEach(function (n) { n.remove(); });
         clone.querySelectorAll("[contenteditable]").forEach(function (n) { n.removeAttribute("contenteditable"); });
+        clone.querySelectorAll(".krg-selected").forEach(function (n) { n.classList.remove("krg-selected"); });
+        var body = clone.querySelector("body");
+        if (body) body.classList.remove("krg-arrange");
         clone.querySelectorAll("script[data-editor-disabled]").forEach(function (s) {
-          s.removeAttribute("type");
-          s.removeAttribute("data-editor-disabled");
+          s.removeAttribute("type"); s.removeAttribute("data-editor-disabled");
         });
         return "<!DOCTYPE html>\n" + clone.outerHTML + "\n";
       }
 
-      openBtn.addEventListener("click", function () {
-        if (dirty && !confirm("Kaydedilmemiş değişiklikler var, yine de devam? / Unsaved changes, continue anyway?")) return;
-        window.showOpenFilePicker({
-          types: [{ description: "HTML", accept: { "text/html": [".html", ".htm"] } }]
-        }).then(function (handles) {
-          fileHandle = handles[0];
-          return fileHandle.getFile();
-        }).then(function (file) {
-          return file.text().then(function (text) { loadHtml(text, file.name); });
-        }).catch(function (err) {
-          if (err && err.name !== "AbortError") flash("Hata / Error: " + err.message, true);
-        });
-      });
-
-      saveBtn.addEventListener("click", function () {
-        if (!fileHandle) return;
-        var html = serialize();
-        fileHandle.createWritable().then(function (w) {
-          return w.write(html).then(function () { return w.close(); });
-        }).then(function () {
+      $("saveBtn").addEventListener("click", async function () {
+        if (!current || !current.handle) return;
+        try {
+          var w = await current.handle.createWritable();
+          await w.write(serialize());
+          await w.close();
           setDirty(false);
           flash("Kaydedildi ✓ / Saved ✓");
-        }).catch(function (err) {
-          flash("Hata / Error: " + err.message, true);
-        });
+        } catch (err) { flash("Hata / Error: " + err.message, true); }
+      });
+
+      /* ================= new post page ================= */
+      $("newPageBtn").addEventListener("click", async function () {
+        if (!dirHandle || !confirmDiscard()) return;
+        try {
+          var trTitle = prompt("Haberin Türkçe başlığı / Turkish title:");
+          if (!trTitle) return;
+          var enTitle = prompt("Haberin İngilizce başlığı / English title:", trTitle);
+          if (!enTitle) return;
+          var isNews = confirm("Bu bir grup haberi mi? / Is this group news?\n(Tamam/OK = Grup Haberleri, İptal/Cancel = Uzmanlık/Expertise)");
+          var chipTr = isNews ? "Grup Haberleri" : "Uzmanlık";
+          var chipEn = isNews ? "Group News" : "Expertise";
+          var slug = prompt("Dosya adı / File name:", slugify(enTitle));
+          if (!slug) return;
+          slug = slugify(slug);
+
+          var newsDir = await dirHandle.getDirectoryHandle("news");
+          var exists = true;
+          try { await newsDir.getFileHandle(slug + ".html"); } catch (e) { exists = false; }
+          if (exists) { flash("Bu isimde dosya zaten var / A file with this name exists", true); return; }
+
+          /* build the article from an existing one as template */
+          var tplHandle = await newsDir.getFileHandle("mof-nedir.html");
+          var tplText = await (await tplHandle.getFile()).text();
+          var doc = new DOMParser().parseFromString(tplText, "text/html");
+          var t = today();
+
+          doc.title = trTitle + " | Küçükkolbaşı Research Group";
+          var md = doc.querySelector('meta[name="description"]');
+          if (md) md.setAttribute("content", trTitle + " — Küçükkolbaşı Research Group.");
+          var h1 = doc.querySelector(".article-head h1");
+          h1.innerHTML = '<span class="tr"></span> <span class="en"></span>';
+          h1.querySelector(".tr").textContent = trTitle;
+          h1.querySelector(".en").textContent = enTitle;
+          var chip = doc.querySelector(".article-head .chip");
+          chip.innerHTML = '<span class="tr"></span><span class="en"></span>';
+          chip.querySelector(".tr").textContent = chipTr;
+          chip.querySelector(".en").textContent = chipEn;
+          var time = doc.querySelector(".article-head time");
+          time.setAttribute("datetime", t.iso); time.textContent = t.disp;
+          doc.querySelector(".article-body").innerHTML =
+            '\n      <p class="tr">Haber metnini buraya yazın.</p>\n' +
+            '      <p class="en">Write the article text here.</p>\n    ';
+
+          var fh = await newsDir.getFileHandle(slug + ".html", { create: true });
+          var w = await fh.createWritable();
+          await w.write("<!DOCTYPE html>\n" + doc.documentElement.outerHTML + "\n");
+          await w.close();
+
+          /* add a card to news.html */
+          var listPage = pages.find(function (p) { return p.path === "news.html"; });
+          if (listPage) {
+            var listText = await (await listPage.handle.getFile()).text();
+            var ldoc = new DOMParser().parseFromString(listText, "text/html");
+            var grid = ldoc.querySelector(".news-grid");
+            var first = grid && grid.querySelector(".news-card");
+            if (first) {
+              var card = first.cloneNode(true);
+              var chipC = card.querySelector(".chip");
+              chipC.innerHTML = '<span class="tr"></span><span class="en"></span>';
+              chipC.querySelector(".tr").textContent = chipTr;
+              chipC.querySelector(".en").textContent = chipEn;
+              var timeC = card.querySelector("time");
+              timeC.setAttribute("datetime", t.iso); timeC.textContent = t.disp;
+              var h3a = card.querySelector("h3 a");
+              h3a.setAttribute("href", "news/" + slug + ".html");
+              h3a.innerHTML = '<span class="tr"></span> <span class="en"></span>';
+              h3a.querySelector(".tr").textContent = trTitle;
+              h3a.querySelector(".en").textContent = enTitle;
+              var exc = card.querySelector("p");
+              exc.innerHTML = '<span class="tr">Kısa özet buraya.</span><span class="en">Short summary here.</span>';
+              var more = card.querySelector(".news-more");
+              if (more) more.setAttribute("href", "news/" + slug + ".html");
+              grid.prepend(card);
+              var lw = await listPage.handle.createWritable();
+              await lw.write("<!DOCTYPE html>\n" + ldoc.documentElement.outerHTML + "\n");
+              await lw.close();
+            }
+          }
+
+          await scanFolder();
+          var np = pages.find(function (p) { return p.path === "news/" + slug + ".html"; });
+          if (np) loadPage(np);
+          flash("Haber oluşturuldu ✓ / Post created ✓");
+        } catch (err) { flash("Hata / Error: " + err.message, true); }
+      });
+
+      /* ================= delete post page ================= */
+      $("delPageBtn").addEventListener("click", async function () {
+        if (!current || !current.inNews || !dirHandle) return;
+        var fname = current.name;
+        if (!confirm('"' + fname + '" haberi silinsin mi? / Delete this post?')) return;
+        if (!confirm("Emin misin? Dosya diskten silinecek (git geçmişindeki eski sürümler durur). / Are you sure? The file will be removed from disk.")) return;
+        try {
+          var newsDir = await dirHandle.getDirectoryHandle("news");
+          await newsDir.removeEntry(fname);
+          /* remove cards linking to it on news.html and index.html */
+          for (var i = 0; i < pages.length; i++) {
+            var p = pages[i];
+            if (p.path !== "news.html" && p.path !== "index.html") continue;
+            var txt = await (await p.handle.getFile()).text();
+            var d = new DOMParser().parseFromString(txt, "text/html");
+            var removed = false;
+            d.querySelectorAll(".news-card").forEach(function (card) {
+              var a = card.querySelector("a[href]");
+              if (a && a.getAttribute("href").indexOf(fname) !== -1) { card.remove(); removed = true; }
+            });
+            if (removed) {
+              var w = await p.handle.createWritable();
+              await w.write("<!DOCTYPE html>\n" + d.documentElement.outerHTML + "\n");
+              await w.close();
+            }
+          }
+          current = null; dirty = false;
+          await scanFolder();
+          var idx = pages.find(function (pp) { return pp.path === "news.html"; });
+          if (idx) loadPage(idx);
+          flash("Haber silindi ✓ / Post deleted ✓");
+        } catch (err) { flash("Hata / Error: " + err.message, true); }
       });
 
       window.addEventListener("beforeunload", function (e) {
@@ -195,7 +659,14 @@
       });
 
       /* exposed for testing and console use */
-      window.krgEditor = { loadHtml: loadHtml, serialize: serialize };
+      window.krgEditor = {
+        loadHtml: loadHtml, serialize: serialize,
+        setMode: function (m) { mode = m; applyMode(); },
+        getState: function () {
+          return { mode: mode, dirty: dirty, pages: pages.map(function (p) { return p.path; }),
+                   selected: selected ? selected.tagName : null, undoDepth: undoStack.length };
+        }
+      };
     })();
   </script>
 </body>
